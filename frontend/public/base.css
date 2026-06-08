@@ -3,7 +3,84 @@
         height: 100%;
         overflow: hidden;
     }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-size: var(--text-x-small);
+    }
 }
 
 @layer components {
+    ss-playground {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        height: 100dvh;
+        overflow: hidden;
+
+        aside {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .projects__container {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .projects__container::-webkit-scrollbar {
+            width: 3px;
+        }
+        .projects__container::-webkit-scrollbar-thumb {
+            background: var(--border);
+        }
+
+        /* ── Sidebar footer ── */
+        .sidebar-footer {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--border);
+        }
+
+        #add-project-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: var(--text-x-small);
+            letter-spacing: 0.03em;
+            text-align: left;
+
+            &:hover {
+                background: var(--bg-hover);
+                color: var(--text-mid);
+            }
+        }
+
+        #theme-toggle-btn {
+            padding: 10px 12px;
+            border: none;
+            border-left: 1px solid var(--border);
+            background: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: var(--text-x-small);
+
+            &:hover {
+                background: var(--bg-hover);
+                color: var(--text-mid);
+            }
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-alt);
+            overflow: hidden;
+        }
+    }
 }
