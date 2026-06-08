@@ -4,6 +4,7 @@ import (
 	"embed"
 	_ "embed"
 	"log"
+	"self_server/internal/config"
 	"self_server/internal/services"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -13,11 +14,18 @@ import (
 var assets embed.FS
 
 func main() {
+	self_servers_service := &services.SelfServerService{}
+
+	conf, err := config.LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+
 	app := application.New(application.Options{
 		Name:        "SelfServer",
 		Description: "A demo of using raw HTML & CSS",
 		Services: []application.Service{
-			application.NewService(&services.SelfServerService{}),
+			application.NewService(self_servers_service),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -40,8 +48,11 @@ func main() {
 		MinHeight:        600,
 	})
 
+	self_servers_service.App = app
+	self_servers_service.Config = conf
+
 	// Run the application. This blocks until the application has been exited.
-	err := app.Run()
+	err = app.Run()
 
 	// If an error occurred while running the application, log it and exit.
 	if err != nil {

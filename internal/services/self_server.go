@@ -1,7 +1,18 @@
 package services
 
-type SelfServerService struct{}
+import (
+	"self_server/internal/config"
 
-func (g *SelfServerService) Greet(name string) string {
-	return "Hello " + name + "!"
+	"github.com/wailsapp/wails/v3/pkg/application"
+)
+
+type SelfServerService struct {
+	App    *application.App
+	Config *config.Config
+}
+
+func (s *SelfServerService) AppReady() {
+	go func() {
+		s.App.Event.Emit("update:projects", s.Config.Projects)
+	}()
 }

@@ -25,6 +25,39 @@
             </aside>
             <main></main>
         </ss-playground>
+        <dialog id="add-project-dialog" class="modal">
+            <div class="modal__content">
+                <span>Add new Project</span>
+                <form method="dialog">
+                    <fieldset>
+                        <label>Name</label>
+                        <input
+                            type="text"
+                            id="add-project-name"
+                            placeholder="e.g. MyProject"
+                            value=""
+                        />
+                    </fieldset>
+                    <fieldset>
+                        <button
+                            type="button"
+                            value="cancel"
+                            id="add-project-cancel"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            class="submit"
+                            id="add-project-submit"
+                            value="default"
+                        >
+                            Confirm
+                        </button>
+                    </fieldset>
+                </form>
+            </div>
+        </dialog>
         <script type="module" src="/src/main.js"></script>
     </body>
 </html>
