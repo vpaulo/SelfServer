@@ -4,9 +4,27 @@
         <meta charset="UTF-8" />
         <link rel="icon" type="image/svg+xml" href="/wails.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Wails App</title>
+        <title>Self Server</title>
     </head>
     <body>
+        <ss-playground>
+            <aside>
+                <div class="projects__container"></div>
+                <div class="sidebar-footer">
+                    <button type="button" id="add-project-btn">
+                        ＋ new project
+                    </button>
+                    <button
+                        type="button"
+                        id="theme-toggle-btn"
+                        title="Theme: system"
+                    >
+                        ◑
+                    </button>
+                </div>
+            </aside>
+            <main></main>
+        </ss-playground>
         <script type="module" src="/src/main.js"></script>
     </body>
 </html>
