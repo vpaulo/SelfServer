@@ -1,0 +1,9 @@
+@layer base {
+    :root {
+        height: 100%;
+        overflow: hidden;
+    }
+}
+
+@layer components {
+}
