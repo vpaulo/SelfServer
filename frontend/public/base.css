@@ -12,6 +12,35 @@
 }
 
 @layer components {
+    .chevron {
+        display: inline-block;
+        font-size: 9px;
+        color: var(--text-dim);
+        flex-shrink: 0;
+
+        &:before {
+            content: "";
+            display: block;
+            width: 1rem;
+        }
+    }
+
+    details[open] > summary > * .chevron,
+    details[open] > summary .chevron {
+        &:before {
+            content: "";
+        }
+    }
+
+    summary {
+        list-style: none;
+    }
+    summary::-webkit-details-marker {
+        display: none;
+    }
+}
+
+@layer components {
     ss-playground {
         display: grid;
         grid-template-columns: 240px 1fr;
@@ -170,6 +199,86 @@
 
         &:hover {
             background: var(--bg-hover);
+        }
+    }
+}
+
+@layer components {
+    ss-project {
+        display: block;
+        border-bottom: 1px solid var(--border);
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .project-name {
+            flex: 1;
+            font-size: var(--text-x-small);
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .project-remove {
+            font-size: 10px;
+            color: var(--text-dim);
+            opacity: 0;
+            cursor: pointer;
+            padding: 1px 3px;
+            border-radius: 2px;
+
+            &:hover {
+                color: var(--red);
+            }
+        }
+
+        .project-body {
+            background: var(--bg-alt);
+        }
+
+        .project-actions {
+            display: flex;
+            border-top: 1px solid var(--border);
+        }
+
+        .proj-add-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border: none;
+            background: none;
+            color: var(--text-dim);
+            font-size: 10px;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+
+            &:hover {
+                background: var(--bg-hover);
+                color: var(--text-mid);
+            }
+
+            & + .proj-add-btn {
+                border-left: 1px solid var(--border);
+            }
+        }
+    }
+
+    ss-project > details > summary {
+        padding: 7px 10px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            background: var(--bg-hover);
+        }
+        &:hover .project-remove {
+            opacity: 1;
         }
     }
 }

@@ -58,6 +58,62 @@
                 </form>
             </div>
         </dialog>
+        <dialog id="add-live-server-dialog" class="modal">
+            <div class="modal__content">
+                <span>Add new Live Server from a directory and a port</span>
+                <form method="dialog">
+                    <fieldset>
+                        <label>Name</label>
+                        <input
+                            type="text"
+                            id="add-live-server-name"
+                            placeholder="e.g. Frontend Dev"
+                            value=""
+                        />
+                    </fieldset>
+                    <fieldset>
+                        <button
+                            type="button"
+                            id="add-live-server-dialog-folder-picker"
+                        >
+                            Choose directory
+                        </button>
+                        <input
+                            type="text"
+                            id="add-live-server-dialog-folder-input"
+                            value=""
+                            readonly
+                        />
+                    </fieldset>
+                    <fieldset>
+                        <label>Port</label>
+                        <input
+                            type="number"
+                            id="add-live-server-port"
+                            min="5000"
+                            max="5100"
+                            value=""
+                        />
+                    </fieldset>
+                    <fieldset>
+                        <button
+                            type="button"
+                            value="cancel"
+                            id="add-live-server-cancel"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            id="add-live-server-submit"
+                            value="default"
+                        >
+                            Confirm
+                        </button>
+                    </fieldset>
+                </form>
+            </div>
+        </dialog>
         <script type="module" src="/src/main.js"></script>
     </body>
 </html>
