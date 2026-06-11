@@ -3,6 +3,7 @@ import "../public/style.css";
 import "../public/base.css";
 import "../public/utilities.css";
 
+import "./components/project.js";
 import "./components/playground.js";
 
 (function () {

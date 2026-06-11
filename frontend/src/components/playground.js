@@ -36,16 +36,16 @@ class PlaygroundElement extends HTMLElement {
     this.listen(document, "project:new", ({ detail }) => {
       if (!detail.project_name?.trim()) return;
       console.log(">>> ADD PROJECT: ", detail);
-      // this.add_project({
-      //   Name: detail.project_name.trim(),
-      //   Servers: [],
-      //   Commands: [],
-      // });
+      this.add_project({
+        Name: detail.project_name.trim(),
+        Servers: [],
+        Commands: [],
+      });
     });
 
     Events.On("update:projects", ({ data: projects }) => {
       (projects ?? []).forEach((project) => {
-        // this.add_project(project);
+        this.add_project(project);
       });
     });
 

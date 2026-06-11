@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"log"
 	"self_server/internal/config"
+	"self_server/internal/server"
 	"self_server/internal/services"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -50,6 +51,7 @@ func main() {
 
 	self_servers_service.App = app
 	self_servers_service.Config = conf
+	self_servers_service.ServerManager = server.NewManager()
 
 	// Run the application. This blocks until the application has been exited.
 	err = app.Run()

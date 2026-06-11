@@ -7,8 +7,24 @@
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
 /**
+ * @param {string} name
+ * @returns {$CancellablePromise<void>}
+ */
+export function AddProject(name) {
+    return $Call.ByID(459220658, name);
+}
+
+/**
  * @returns {$CancellablePromise<void>}
  */
 export function AppReady() {
     return $Call.ByID(3236140968);
+}
+
+/**
+ * @param {string} name
+ * @returns {$CancellablePromise<void>}
+ */
+export function RemoveProject(name) {
+    return $Call.ByID(2906511607, name);
 }
