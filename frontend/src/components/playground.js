@@ -35,7 +35,6 @@ class PlaygroundElement extends HTMLElement {
     this.listen(this.theme_btn, "click", () => this.toggle_theme());
     this.listen(document, "project:new", ({ detail }) => {
       if (!detail.project_name?.trim()) return;
-      console.log(">>> ADD PROJECT: ", detail);
       this.add_project({
         Name: detail.project_name.trim(),
         Servers: [],

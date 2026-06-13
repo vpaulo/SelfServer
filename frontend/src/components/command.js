@@ -1,5 +1,5 @@
 import { SelfServerService } from "../../bindings/self_server/internal/services";
-import { try_catch } from "../helpers/try_catch";
+import { try_catch, escape_html } from "../helpers/try_catch";
 
 class CommandElement extends HTMLElement {
   cleanup = [];
@@ -20,8 +20,8 @@ class CommandElement extends HTMLElement {
       <div class="command">
         <div class="cmd-info">
           <span class="cmd-icon idle">▶</span>
-          <span class="cmd-name">${this.script_name}</span>
-          <span class="cmd-preview">${this.raw_command}</span>
+          <span class="cmd-name">${escape_html(this.script_name)}</span>
+          <span class="cmd-preview">${escape_html(this.raw_command)}</span>
         </div>
         <div class="cmd-actions">
           <button class="act-btn run-btn" title="Run">▶</button>
@@ -147,7 +147,6 @@ class CommandElement extends HTMLElement {
 
   async rerun() {
     await this.stop();
-    await new Promise((r) => setTimeout(r, 300));
     await this.start();
   }
 
@@ -167,10 +166,7 @@ class CommandElement extends HTMLElement {
     }
 
     const proc = this.closest("ss-commands-process");
-    if (proc) {
-      proc.total_count = Math.max(0, proc.total_count - 1);
-      proc.total_el.textContent = proc.total_count;
-    }
+    if (proc) proc.decrement_count();
     this.remove();
   }
 

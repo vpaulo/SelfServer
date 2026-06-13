@@ -1,10 +1,13 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sync"
 )
+
+var ErrServerNotFound = errors.New("server not found")
 
 type Manager struct {
 	mutex   sync.RWMutex
@@ -45,14 +48,23 @@ func (m *Manager) Restart(port uint16) error {
 	m.mutex.RUnlock()
 
 	if !ok {
-		return fmt.Errorf("server on port %d not found", port)
+		return fmt.Errorf("server on port %d: %w", port, ErrServerNotFound)
 	}
 
 	if err := srv.Stop(); err != nil {
 		return err
 	}
 
-	return srv.Start()
+	go func() {
+		if err := srv.Start(); err != nil {
+			log.Printf("server %d restart failed: %v", port, err)
+			m.mutex.Lock()
+			delete(m.servers, port)
+			m.mutex.Unlock()
+		}
+	}()
+
+	return nil
 }
 
 func (m *Manager) Stop(port uint16) error {
@@ -64,7 +76,7 @@ func (m *Manager) Stop(port uint16) error {
 	m.mutex.Unlock() // release BEFORE the slow Shutdown() call
 
 	if !ok {
-		return fmt.Errorf("server on port %d not found", port)
+		return fmt.Errorf("server on port %d: %w", port, ErrServerNotFound)
 	}
 
 	return srv.Stop()

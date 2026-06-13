@@ -3,7 +3,9 @@ package services
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"os/exec"
@@ -36,7 +38,7 @@ type PortInfo struct {
 
 const maxLogBuf = 64 * 1024 // 64 KB ring buffer per PTY
 
-type ptyProcess struct {
+type PtyProcess struct {
 	pty    gopty.Pty
 	cmd    *gopty.Cmd
 	done   chan struct{}
@@ -44,7 +46,7 @@ type ptyProcess struct {
 	logBuf []byte
 }
 
-func (p *ptyProcess) append_log(data []byte) {
+func (p *PtyProcess) append_log(data []byte) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.logBuf = append(p.logBuf, data...)
@@ -53,7 +55,7 @@ func (p *ptyProcess) append_log(data []byte) {
 	}
 }
 
-func (p *ptyProcess) copy_log() []byte {
+func (p *PtyProcess) copy_log() []byte {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	out := make([]byte, len(p.logBuf))
@@ -96,13 +98,17 @@ type SelfServerService struct {
 	Config        *config.Config
 	ServerManager *server.Manager
 	PtyMutex      sync.RWMutex
-	PtyRunning    map[string]*ptyProcess
+	PtyRunning    map[string]*PtyProcess
+}
+
+func NewSelfServerService() *SelfServerService {
+	return &SelfServerService{
+		PtyRunning: make(map[string]*PtyProcess),
+	}
 }
 
 func (s *SelfServerService) AppReady() {
-	go func() {
-		s.App.Event.Emit("update:projects", s.Config.Projects)
-	}()
+	s.App.Event.Emit("update:projects", s.Config.Projects)
 }
 
 func (s *SelfServerService) PickFolder() string {
@@ -130,7 +136,9 @@ func (s *SelfServerService) RemoveProject(name string) error {
 	for _, project := range s.Config.Projects {
 		if project.Name == name {
 			for _, srv := range project.Servers {
-				s.ServerManager.Stop(srv.Port)
+				if err := s.ServerManager.Stop(srv.Port); err != nil && !errors.Is(err, server.ErrServerNotFound) {
+					log.Printf("stop server %d: %v", srv.Port, err)
+				}
 			}
 			break
 		}
@@ -225,7 +233,7 @@ func (s *SelfServerService) RestartServer(port uint16) error {
 
 func (s *SelfServerService) StopServer(port uint16) error {
 	if err := s.ServerManager.Stop(port); err != nil {
-		if err.Error() != fmt.Sprintf("server on port %d not found", port) {
+		if !errors.Is(err, server.ErrServerNotFound) {
 			return err
 		}
 		if killErr := server.KillPort(port); killErr != nil {
@@ -237,10 +245,8 @@ func (s *SelfServerService) StopServer(port uint16) error {
 }
 
 func (s *SelfServerService) RemoveServer(project_name string, port uint16) error {
-	if err := s.ServerManager.Stop(port); err != nil {
-		if err.Error() != fmt.Sprintf("server on port %d not found", port) {
-			return err
-		}
+	if err := s.ServerManager.Stop(port); err != nil && !errors.Is(err, server.ErrServerNotFound) {
+		return err
 	}
 	for i, project := range s.Config.Projects {
 		if project.Name == project_name {
@@ -273,8 +279,8 @@ func (s *SelfServerService) SuggestPort() (uint16, error) {
 			used[server.Port] = true
 		}
 	}
-	port := uint16(5000)
-	for port < 5100 {
+	port := uint16(port_range_start)
+	for port < port_range_end {
 		if used[port] {
 			port++
 			continue
@@ -400,7 +406,7 @@ func (s *SelfServerService) RunScript(id, dir, script_name, pm string, cols, row
 		return fmt.Errorf("pty.Start: %w", err)
 	}
 
-	proc := &ptyProcess{pty: pt, cmd: cmd, done: make(chan struct{})}
+	proc := &PtyProcess{pty: pt, cmd: cmd, done: make(chan struct{})}
 	s.PtyRunning[id] = proc
 	s.PtyMutex.Unlock()
 
@@ -570,7 +576,10 @@ func (s *SelfServerService) emit_server_log(entry server.LogEntry) {
 }
 
 func (s *SelfServerService) emit_server_started(port uint16, path string) {
-	abs_dir, _ := filepath.Abs(path)
+	abs_dir, err := filepath.Abs(path)
+	if err != nil {
+		abs_dir = path
+	}
 	banner := fmt.Sprintf(
 		"\r\n  %s%sSelf Server%s\r\n  %sServing %s%s\r\n  %shttp://localhost:%d%s\r\n\r\n",
 		ansi_bold, ansi_green, ansi_reset,

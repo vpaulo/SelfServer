@@ -1,5 +1,5 @@
 import { SelfServerService } from "../../bindings/self_server/internal/services";
-import { try_catch } from "../helpers/try_catch";
+import { try_catch, escape_html } from "../helpers/try_catch";
 import { dialog_add_live_server } from "../dialogs";
 
 class ProjectElement extends HTMLElement {
@@ -20,7 +20,7 @@ class ProjectElement extends HTMLElement {
         <summary>
           <div class="project-header">
             <span class="chevron"></span>
-            <span class="project-name">${this.name}</span>
+            <span class="project-name">${escape_html(this.name)}</span>
             <span class="project-remove" title="Remove project">✕</span>
           </div>
         </summary>
@@ -42,8 +42,6 @@ class ProjectElement extends HTMLElement {
 
     this.live_servers_proc = this.querySelector("ss-live-server-process");
     this.commands_proc = this.querySelector("ss-commands-process");
-
-    dialog_add_live_server.init(this.name);
 
     this.listen(this.querySelector(".project-remove"), "click", (e) =>
       this.remove_project(e),
@@ -104,6 +102,7 @@ class ProjectElement extends HTMLElement {
   }
 
   add_server() {
+    dialog_add_live_server.init(this.name);
     dialog_add_live_server.dialog.showModal();
   }
 
