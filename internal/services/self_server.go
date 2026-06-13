@@ -228,7 +228,24 @@ func (s *SelfServerService) StartServer(path string, port uint16) error {
 }
 
 func (s *SelfServerService) RestartServer(port uint16) error {
-	return s.ServerManager.Restart(port)
+	path, ok := s.ServerManager.ServerPath(port)
+	if !ok {
+		return fmt.Errorf("server on port %d: %w", port, server.ErrServerNotFound)
+	}
+
+	go s.emit_server_restarting(port)
+
+	if err := s.ServerManager.Restart(port); err != nil {
+		return err
+	}
+
+	go s.emit_server_started(port, path)
+	go s.App.Event.Emit("server:started", ServerStartedPayload{
+		Path: path,
+		Port: port,
+		URL:  fmt.Sprintf("http://localhost:%d", port),
+	})
+	return nil
 }
 
 func (s *SelfServerService) StopServer(port uint16) error {
@@ -240,6 +257,7 @@ func (s *SelfServerService) StopServer(port uint16) error {
 			return killErr
 		}
 	}
+	go s.emit_server_stopped(port)
 	go s.App.Event.Emit("server:stopped", ServerStoppedPayload{Port: port})
 	return nil
 }
@@ -589,6 +607,30 @@ func (s *SelfServerService) emit_server_started(port uint16, path string) {
 	s.App.Event.Emit("pty:data", PTYDataPayload{
 		ID:   fmt.Sprintf("server:%d", port),
 		Data: base64.StdEncoding.EncodeToString([]byte(banner)),
+	})
+}
+
+func (s *SelfServerService) emit_server_stopped(port uint16) {
+	line := fmt.Sprintf(
+		"\r\n  %s%sStopped%s  %shttp://localhost:%d%s\r\n\r\n",
+		ansi_bold, ansi_red, ansi_reset,
+		ansi_gray, port, ansi_reset,
+	)
+	s.App.Event.Emit("pty:data", PTYDataPayload{
+		ID:   fmt.Sprintf("server:%d", port),
+		Data: base64.StdEncoding.EncodeToString([]byte(line)),
+	})
+}
+
+func (s *SelfServerService) emit_server_restarting(port uint16) {
+	line := fmt.Sprintf(
+		"\r\n  %s%sRestarting%s  %shttp://localhost:%d%s\r\n",
+		ansi_bold, ansi_yellow, ansi_reset,
+		ansi_gray, port, ansi_reset,
+	)
+	s.App.Event.Emit("pty:data", PTYDataPayload{
+		ID:   fmt.Sprintf("server:%d", port),
+		Data: base64.StdEncoding.EncodeToString([]byte(line)),
 	})
 }
 

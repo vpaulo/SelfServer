@@ -82,6 +82,16 @@ func (m *Manager) Stop(port uint16) error {
 	return srv.Stop()
 }
 
+func (m *Manager) ServerPath(port uint16) (string, bool) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+	srv, ok := m.servers[port]
+	if !ok {
+		return "", false
+	}
+	return srv.path, true
+}
+
 func (m *Manager) StopAll() {
 	m.mutex.Lock()
 	snapshot := make([]*LiveServer, 0, len(m.servers))

@@ -54,7 +54,7 @@ class LiveServerElement extends HTMLElement {
       document.dispatchEvent(
         new CustomEvent("process-selected", {
           detail: {
-            source: `:${this.port}`,
+            source: `server:${this.port}`,
             label: `${this.name}:${this.port}`,
           },
         }),
@@ -151,7 +151,7 @@ class LiveServerElement extends HTMLElement {
     document.dispatchEvent(
       new CustomEvent("process-selected", {
         detail: {
-          source: `:${this.port}`,
+          source: `server:${this.port}`,
           label: `${this.name}:${this.port}`,
         },
       }),
@@ -196,7 +196,7 @@ class LiveServerElement extends HTMLElement {
     document.dispatchEvent(
       new CustomEvent("process-selected", {
         detail: {
-          source: `:${this.port}`,
+          source: `server:${this.port}`,
           label: `${this.name}:${this.port}`,
         },
       }),
