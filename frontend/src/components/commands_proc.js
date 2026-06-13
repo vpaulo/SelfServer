@@ -35,6 +35,11 @@ class CommandsProcessElement extends HTMLElement {
     this.cleanup = [];
   }
 
+  decrement_count(by = 1) {
+    this.total_count = Math.max(0, this.total_count - by);
+    this.total_el.textContent = this.total_count;
+  }
+
   async add_package(
     package_json_path,
     pm,
@@ -77,8 +82,7 @@ class CommandsProcessElement extends HTMLElement {
       }
       const removed = group.querySelectorAll("ss-command").length;
       group.remove();
-      this.total_count = Math.max(0, this.total_count - removed);
-      this.total_el.textContent = this.total_count;
+      this.decrement_count(removed);
     });
 
     (scripts ?? []).forEach(({ Name, Command }) => {

@@ -29,15 +29,20 @@ type ServerConfig struct {
 	Port uint16 `toml:"port"`
 }
 
-func LoadConfig() (*Config, error) {
+func configPath() (string, error) {
 	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(configDir, "SelfServer", "self_servers.toml"), nil
+}
+
+func LoadConfig() (*Config, error) {
+	path, err := configPath()
 	if err != nil {
 		return nil, err
 	}
 
-	path := filepath.Join(configDir, "SelfServer", "self_servers.toml")
-
-	//  You can create the directory if needed:
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return nil, err
 	}
@@ -67,12 +72,10 @@ func LoadConfig() (*Config, error) {
 }
 
 func SaveConfig(cfg *Config) error {
-	configDir, err := os.UserConfigDir()
+	path, err := configPath()
 	if err != nil {
 		return err
 	}
-
-	path := filepath.Join(configDir, "SelfServer", "self_servers.toml")
 
 	data, err := toml.Marshal(cfg)
 	if err != nil {

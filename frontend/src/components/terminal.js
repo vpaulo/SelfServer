@@ -11,11 +11,24 @@ class PtyTerminalElement extends HTMLElement {
   running = false;
   _mounted = false;
   _buf = []; // Uint8Array chunks buffered before mount
+  _buf_size = 0; // total bytes currently in _buf
   _off_data = null; // cleanup fn from Events.On("pty:data")
   _off_done = null; // cleanup fn from Events.On("pty:done")
 
+  static MAX_BUF = 512 * 1024; // 512 KB JS-side pre-mount buffer cap
+
   static get observedAttributes() {
     return ["id", "readonly"];
+  }
+
+  _buf_push(chunk) {
+    this._buf.push(chunk);
+    this._buf_size += chunk.length;
+    // Drop oldest chunks when the buffer exceeds the cap
+    while (this._buf_size > PtyTerminalElement.MAX_BUF && this._buf.length > 0) {
+      this._buf_size -= this._buf[0].length;
+      this._buf.shift();
+    }
   }
 
   connectedCallback() {
@@ -31,7 +44,7 @@ class PtyTerminalElement extends HTMLElement {
       if (this._mounted) {
         this.terminal.write(raw);
       } else {
-        this._buf.push(raw);
+        this._buf_push(raw);
       }
     });
 
@@ -43,7 +56,7 @@ class PtyTerminalElement extends HTMLElement {
       if (this._mounted) {
         this.terminal.writeln(msg);
       } else {
-        this._buf.push(new TextEncoder().encode(msg));
+        this._buf_push(new TextEncoder().encode(msg));
       }
     });
   }
@@ -60,6 +73,7 @@ class PtyTerminalElement extends HTMLElement {
     this.terminal?.dispose();
     this._mounted = false;
     this._buf = [];
+    this._buf_size = 0;
   }
 
   // Called by log_context.show() when this terminal becomes visible
@@ -112,6 +126,7 @@ class PtyTerminalElement extends HTMLElement {
     // Flush buffered data (pre-mount events + optional history replay)
     for (const chunk of this._buf) this.terminal.write(chunk);
     this._buf = [];
+    this._buf_size = 0;
   }
 
   // Called when app reloads and the PTY is still alive in Go

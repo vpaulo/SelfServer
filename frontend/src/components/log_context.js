@@ -26,10 +26,11 @@ class LogContextElement extends HTMLElement {
     this.clear_btn = this.querySelector(".log-clear");
 
     // Create a readonly PTY terminal when a live server starts
-    Events.On("server:started", ({ data }) => {
+    const off_server_started = Events.On("server:started", ({ data }) => {
       const source = `server:${data.port}`;
       this.ensure_terminal(source, `:${data.port}`, { readonly: true });
     });
+    this.cleanup.push(off_server_started);
 
     // Script added to sidebar — pre-create its terminal so no output is missed
     const on_add = (e) => {
@@ -87,7 +88,6 @@ class LogContextElement extends HTMLElement {
       fn();
     });
     this.cleanup = [];
-    // Events.Off("server:started");
   }
 
   ensure_terminal(source, label, { dir, script, pm, readonly } = {}) {

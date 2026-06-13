@@ -1,3 +1,12 @@
+export function escape_html(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function process_error(raw_error, operation_name) {
   const error =
     raw_error instanceof Error ? raw_error : Error(String(raw_error));

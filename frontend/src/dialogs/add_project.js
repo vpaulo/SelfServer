@@ -49,7 +49,7 @@ export const dialog_add_project = {
     const project_name = this.project_name.value.trim();
     const [err] = await try_catch(
       SelfServerService.AddProject(project_name),
-      "Add New Poject",
+      "Add New Project",
     );
     if (err) {
       console.error(err);

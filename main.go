@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	_ "embed"
 	"log"
 	"self_server/internal/config"
 	"self_server/internal/server"
@@ -15,7 +14,7 @@ import (
 var assets embed.FS
 
 func main() {
-	self_servers_service := &services.SelfServerService{}
+	self_servers_service := services.NewSelfServerService()
 
 	conf, err := config.LoadConfig()
 	if err != nil {
@@ -53,10 +52,10 @@ func main() {
 	self_servers_service.Config = conf
 	self_servers_service.ServerManager = server.NewManager()
 
-	// Run the application. This blocks until the application has been exited.
 	err = app.Run()
 
-	// If an error occurred while running the application, log it and exit.
+	self_servers_service.ServerManager.StopAll()
+
 	if err != nil {
 		log.Fatal(err)
 	}

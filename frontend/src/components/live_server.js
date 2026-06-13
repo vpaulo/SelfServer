@@ -1,6 +1,6 @@
 import { Events, Browser } from "@wailsio/runtime";
 import { SelfServerService } from "../../bindings/self_server/internal/services";
-import { try_catch } from "../helpers/try_catch";
+import { try_catch, escape_html } from "../helpers/try_catch";
 
 class LiveServerElement extends HTMLElement {
   cleanup = [];
@@ -20,7 +20,7 @@ class LiveServerElement extends HTMLElement {
       <div class="server">
         <div class="server-info">
           <span class="server-dot stopped"></span>
-          <span class="server-name">${this.name}:${this.port}</span>
+          <span class="server-name">${escape_html(this.name)}:${escape_html(this.port)}</span>
           <a class="server-url" hidden href="#"></a>
           <span class="error-msg" hidden></span>
         </div>
@@ -168,14 +168,17 @@ class LiveServerElement extends HTMLElement {
       const label = ownerName || "another process";
       if (
         !confirm(`Port ${this.port} is used by "${label}". Kill it and retry?`)
-      )
+      ) {
+        this.start_btn.classList.remove("hidden");
         return;
+      }
 
       const [killErr] = await try_catch(
         SelfServerService.KillPort(Number(this.port)),
       );
       if (killErr) {
         console.error("kill failed:", killErr);
+        this.start_btn.classList.remove("hidden");
         return;
       }
 
@@ -184,6 +187,7 @@ class LiveServerElement extends HTMLElement {
         SelfServerService.StartServer(this.path, Number(this.port)),
       );
     } else {
+      this.start_btn.classList.remove("hidden");
       console.error(err);
     }
   }

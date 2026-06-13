@@ -6,6 +6,7 @@ export const dialog_add_live_server = {
   project_name: "",
 
   init(project_name) {
+    this.clean();
     this.dialog = document.getElementById("add-live-server-dialog");
     this.server_name = document.getElementById("add-live-server-name");
     this.folder_picker = document.getElementById(
@@ -28,6 +29,14 @@ export const dialog_add_live_server = {
     );
     this.listen(this.server_submit, "click", (e) => this.submit_handler(e));
     this.listen(this.server_cancel, "click", (e) => this.submit_cancel(e));
+
+    // Clear custom validity messages as soon as the user starts fixing the field
+    this.listen(this.folder_input, "input", () =>
+      this.folder_input.setCustomValidity(""),
+    );
+    this.listen(this.server_port, "input", () =>
+      this.server_port.setCustomValidity(""),
+    );
   },
 
   clean() {
@@ -46,7 +55,9 @@ export const dialog_add_live_server = {
   close_handler() {
     this.server_name.value = "";
     this.folder_input.value = "";
+    this.folder_input.setCustomValidity("");
     this.server_port.value = "";
+    this.server_port.setCustomValidity("");
   },
 
   async toggle_handler() {
@@ -56,11 +67,12 @@ export const dialog_add_live_server = {
   },
 
   async folder_picker_handler() {
-    try {
-      const path = await SelfServerService.PickFolder();
+    const [err, path] = await try_catch(
+      SelfServerService.PickFolder(),
+      "PickFolder",
+    );
+    if (!err && path && !path.startsWith("Error") && path !== "Cancelled") {
       this.folder_input.value = path;
-    } catch (err) {
-      console.error(err);
     }
   },
 
@@ -70,13 +82,18 @@ export const dialog_add_live_server = {
     let is_valid_form = true;
 
     if (this.folder_input.value === "") {
-      // TODO: this validation causes a flicker in the app
       this.folder_input.setCustomValidity("Directory path is required.");
       this.folder_input.reportValidity();
       is_valid_form = false;
     }
+
+    const port_num = Number(this.server_port.value);
     if (this.server_port.value === "") {
       this.server_port.setCustomValidity("Port number is required.");
+      this.server_port.reportValidity();
+      is_valid_form = false;
+    } else if (!Number.isInteger(port_num) || port_num < 1 || port_num > 65535) {
+      this.server_port.setCustomValidity("Port must be a number between 1 and 65535.");
       this.server_port.reportValidity();
       is_valid_form = false;
     }
@@ -86,10 +103,9 @@ export const dialog_add_live_server = {
     const projectName = this.dialog.dataset.projectName || "";
     const name = this.server_name.value.trim();
     const path = this.folder_input.value;
-    const port = Number(this.server_port.value);
 
     const [err] = await try_catch(
-      SelfServerService.AddLiveServer(projectName, name, path, port),
+      SelfServerService.AddLiveServer(projectName, name, path, port_num),
     );
     if (err) {
       console.error(err);
@@ -98,7 +114,7 @@ export const dialog_add_live_server = {
 
     document.dispatchEvent(
       new CustomEvent("project:server-added", {
-        detail: { projectName, name, path, port },
+        detail: { projectName, name, path, port: port_num },
       }),
     );
 
