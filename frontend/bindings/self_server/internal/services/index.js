@@ -6,3 +6,8 @@ import * as SelfServerService from "./selfserverservice.js";
 export {
     SelfServerService
 };
+
+export {
+    PortInfo,
+    ScriptInfo
+} from "./models.js";

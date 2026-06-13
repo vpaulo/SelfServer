@@ -16,18 +16,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type reloadMsg struct {
+type reload_message struct {
 	Type string `json:"type"` // "reload" | "css"
 	File string `json:"file"`
 }
 
-type wsHub struct {
-	mu      sync.Mutex
+type websocket_hub struct {
+	mutex   sync.Mutex
 	clients map[*websocket.Conn]bool
 }
 
-func newWSHub() *wsHub {
-	return &wsHub{clients: make(map[*websocket.Conn]bool)}
+func new_websocket_hub() *websocket_hub {
+	return &websocket_hub{clients: make(map[*websocket.Conn]bool)}
 }
 
 var upgrader = websocket.Upgrader{
@@ -41,36 +41,36 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (h *wsHub) wsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *websocket_hub) websocket_handler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
 	}
 
-	h.mu.Lock()
+	h.mutex.Lock()
 	h.clients[conn] = true
-	h.mu.Unlock()
+	h.mutex.Unlock()
 
 	for {
 		if _, _, err := conn.ReadMessage(); err != nil {
-			h.mu.Lock()
+			h.mutex.Lock()
 			delete(h.clients, conn)
-			h.mu.Unlock()
+			h.mutex.Unlock()
 			conn.Close()
 			return
 		}
 	}
 }
 
-func (h *wsHub) broadcast(msg reloadMsg) {
+func (h *websocket_hub) broadcast(msg reload_message) {
 	data, _ := json.Marshal(msg)
 
-	h.mu.Lock()
+	h.mutex.Lock()
 	clients := make([]*websocket.Conn, 0, len(h.clients))
 	for conn := range h.clients {
 		clients = append(clients, conn)
 	}
-	h.mu.Unlock()
+	h.mutex.Unlock()
 
 	var dead []*websocket.Conn
 	for _, conn := range clients {
@@ -81,17 +81,17 @@ func (h *wsHub) broadcast(msg reloadMsg) {
 	}
 
 	if len(dead) > 0 {
-		h.mu.Lock()
+		h.mutex.Lock()
 		for _, conn := range dead {
 			delete(h.clients, conn)
 		}
-		h.mu.Unlock()
+		h.mutex.Unlock()
 	}
 }
 
-func (h *wsHub) closeAll() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+func (h *websocket_hub) closeAll() {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
 
 	for conn := range h.clients {
 		conn.Close()
@@ -99,7 +99,7 @@ func (h *wsHub) closeAll() {
 	}
 }
 
-const reloadScript = `
+const reload_script = `
 <script>
 (function () {
   function connect() {
@@ -121,12 +121,12 @@ const reloadScript = `
 </script>
 `
 
-func injectingHandler(root string, hub *wsHub) http.Handler {
+func injecting_handler(root string, hub *websocket_hub) http.Handler {
 	fs := http.FileServer(http.Dir(root))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/ws" {
-			hub.wsHandler(w, r)
+			hub.websocket_handler(w, r)
 			return
 		}
 
@@ -151,9 +151,9 @@ func injectingHandler(root string, hub *wsHub) http.Handler {
 
 		body := string(data)
 		if idx := strings.LastIndex(body, "</body>"); idx != -1 {
-			body = body[:idx] + reloadScript + body[idx:]
+			body = body[:idx] + reload_script + body[idx:]
 		} else {
-			body += reloadScript
+			body += reload_script
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -161,7 +161,7 @@ func injectingHandler(root string, hub *wsHub) http.Handler {
 	})
 }
 
-func watchDir(root string, hub *wsHub) (*fsnotify.Watcher, error) {
+func watch_directory(root string, hub *websocket_hub) (*fsnotify.Watcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
@@ -181,7 +181,7 @@ func watchDir(root string, hub *wsHub) (*fsnotify.Watcher, error) {
 		return watcher.Add(path)
 	})
 
-	debouncedBroadcast := debounce.New(80 * time.Millisecond)
+	debounced_broadcast := debounce.New(80 * time.Millisecond)
 
 	go func() {
 		defer watcher.Close()
@@ -192,11 +192,11 @@ func watchDir(root string, hub *wsHub) (*fsnotify.Watcher, error) {
 					return
 				}
 				ext := strings.ToLower(filepath.Ext(event.Name))
-				msg := reloadMsg{Type: "reload", File: event.Name}
+				msg := reload_message{Type: "reload", File: event.Name}
 				if ext == ".css" {
 					msg.Type = "css"
 				}
-				debouncedBroadcast(func() { hub.broadcast(msg) })
+				debounced_broadcast(func() { hub.broadcast(msg) })
 
 				if info, err := os.Stat(event.Name); err == nil && info.IsDir() {
 					_ = watcher.Add(event.Name)
@@ -223,30 +223,30 @@ type LogEntry struct {
 	Elapsed     time.Duration
 }
 
-type responseRecorder struct {
+type response_recorder struct {
 	http.ResponseWriter
 	status int
 	bytes  int64
 }
 
-func (r *responseRecorder) WriteHeader(code int) {
+func (r *response_recorder) WriteHeader(code int) {
 	r.status = code
 	r.ResponseWriter.WriteHeader(code)
 }
 
-func (r *responseRecorder) Write(b []byte) (int, error) {
+func (r *response_recorder) Write(b []byte) (int, error) {
 	n, err := r.ResponseWriter.Write(b)
 	r.bytes += int64(n)
 	return n, err
 }
 
-func loggingHandler(next http.Handler, port uint16, onLog func(LogEntry)) http.Handler {
+func logging_handler(next http.Handler, port uint16, onLog func(LogEntry)) http.Handler {
 	if onLog == nil {
 		return next
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		rec := &responseRecorder{ResponseWriter: w, status: 200}
+		rec := &response_recorder{ResponseWriter: w, status: 200}
 		next.ServeHTTP(rec, r)
 		elapsed := time.Since(start)
 		onLog(LogEntry{
@@ -265,7 +265,7 @@ type LiveServer struct {
 	path    string
 	port    uint16
 	server  *http.Server
-	hub     *wsHub
+	hub     *websocket_hub
 	watcher *fsnotify.Watcher
 	OnLog   func(LogEntry)
 }
@@ -282,17 +282,17 @@ func (l *LiveServer) Start() error {
 		return err
 	}
 
-	hub := newWSHub()
+	hub := new_websocket_hub()
 	l.hub = hub
 
-	watcher, err := watchDir(absDir, hub)
+	watcher, err := watch_directory(absDir, hub)
 	if err != nil {
 		return err
 	}
 	l.watcher = watcher
 
 	mux := http.NewServeMux()
-	mux.Handle("/", loggingHandler(injectingHandler(absDir, hub), l.port, l.OnLog))
+	mux.Handle("/", logging_handler(injecting_handler(absDir, hub), l.port, l.OnLog))
 
 	addr := fmt.Sprintf(":%d", l.port)
 	url := fmt.Sprintf("http://localhost:%d", l.port)

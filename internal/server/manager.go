@@ -7,7 +7,7 @@ import (
 )
 
 type Manager struct {
-	mu      sync.RWMutex
+	mutex   sync.RWMutex
 	servers map[uint16]*LiveServer
 }
 
@@ -17,22 +17,22 @@ func NewManager() *Manager {
 	}
 }
 
-func (m *Manager) Start(path string, port uint16, onLog func(LogEntry)) error {
-	m.mu.Lock()
+func (m *Manager) Start(path string, port uint16, on_log func(LogEntry)) error {
+	m.mutex.Lock()
 	if _, exists := m.servers[port]; exists {
-		m.mu.Unlock()
+		m.mutex.Unlock()
 		return fmt.Errorf("server already registered on port %d", port)
 	}
-	srv := &LiveServer{path: path, port: port, OnLog: onLog}
+	srv := &LiveServer{path: path, port: port, OnLog: on_log}
 	m.servers[port] = srv
-	m.mu.Unlock() // release before Start() blocks on ListenAndServe
+	m.mutex.Unlock() // release before Start() blocks on ListenAndServe
 
 	go func() {
 		if err := srv.Start(); err != nil {
 			log.Printf("server %d: %v", port, err)
-			m.mu.Lock()
+			m.mutex.Lock()
 			delete(m.servers, port)
-			m.mu.Unlock()
+			m.mutex.Unlock()
 		}
 	}()
 
@@ -40,9 +40,9 @@ func (m *Manager) Start(path string, port uint16, onLog func(LogEntry)) error {
 }
 
 func (m *Manager) Restart(port uint16) error {
-	m.mu.RLock()
+	m.mutex.RLock()
 	srv, ok := m.servers[port]
-	m.mu.RUnlock()
+	m.mutex.RUnlock()
 
 	if !ok {
 		return fmt.Errorf("server on port %d not found", port)
@@ -56,12 +56,12 @@ func (m *Manager) Restart(port uint16) error {
 }
 
 func (m *Manager) Stop(port uint16) error {
-	m.mu.Lock()
+	m.mutex.Lock()
 	srv, ok := m.servers[port]
 	if ok {
 		delete(m.servers, port)
 	}
-	m.mu.Unlock() // release BEFORE the slow Shutdown() call
+	m.mutex.Unlock() // release BEFORE the slow Shutdown() call
 
 	if !ok {
 		return fmt.Errorf("server on port %d not found", port)
@@ -71,13 +71,13 @@ func (m *Manager) Stop(port uint16) error {
 }
 
 func (m *Manager) StopAll() {
-	m.mu.Lock()
+	m.mutex.Lock()
 	snapshot := make([]*LiveServer, 0, len(m.servers))
 	for _, srv := range m.servers {
 		snapshot = append(snapshot, srv)
 	}
 	m.servers = make(map[uint16]*LiveServer)
-	m.mu.Unlock()
+	m.mutex.Unlock()
 
 	var wg sync.WaitGroup
 	for _, srv := range snapshot {
