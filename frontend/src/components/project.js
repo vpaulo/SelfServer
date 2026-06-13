@@ -40,8 +40,8 @@ class ProjectElement extends HTMLElement {
     this.name = this.getAttribute("name") || "Project";
     this.render();
 
-    this.live_servers_proc = this.querySelector("run-live-server-process");
-    this.commands_proc = this.querySelector("run-commands-process");
+    this.live_servers_proc = this.querySelector("ss-live-server-process");
+    this.commands_proc = this.querySelector("ss-commands-process");
 
     dialog_add_live_server.init(this.name);
 

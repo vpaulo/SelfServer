@@ -23,8 +23,8 @@ func FindPortOwner(port uint16) (string, error) {
 			return "", fmt.Errorf("port %d appears free or lsof not found", port)
 		}
 		pid := strings.TrimSpace(strings.Split(string(out), "\n")[0])
-		nameOut, _ := exec.Command("ps", "-p", pid, "-o", "comm=").Output()
-		return strings.TrimSpace(string(nameOut)), nil
+		name_out, _ := exec.Command("ps", "-p", pid, "-o", "comm=").Output()
+		return strings.TrimSpace(string(name_out)), nil
 	case "windows":
 		out, err := exec.Command("netstat", "-ano").Output()
 		if err != nil {
@@ -36,9 +36,9 @@ func FindPortOwner(port uint16) (string, error) {
 			if len(fields) < 5 || !strings.HasSuffix(fields[1], target) {
 				continue
 			}
-			nameOut, _ := exec.Command("tasklist", "/FI",
+			name_out, _ := exec.Command("tasklist", "/FI",
 				fmt.Sprintf("PID eq %s", fields[4]), "/FO", "CSV", "/NH").Output()
-			parts := strings.Split(string(nameOut), ",")
+			parts := strings.Split(string(name_out), ",")
 			if len(parts) > 0 {
 				return strings.Trim(parts[0], `"`), nil
 			}

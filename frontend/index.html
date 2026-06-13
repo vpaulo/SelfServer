@@ -9,7 +9,9 @@
     <body>
         <ss-playground>
             <aside>
-                <div class="projects__container"></div>
+                <div class="projects__container">
+                    <ss-active-ports-process></ss-active-ports-process>
+                </div>
                 <div class="sidebar-footer">
                     <button type="button" id="add-project-btn">
                         ＋ new project
@@ -23,14 +25,14 @@
                     </button>
                 </div>
             </aside>
-            <main></main>
+            <main><ss-log-context></ss-log-context></main>
         </ss-playground>
         <dialog id="add-project-dialog" class="modal">
             <div class="modal__content">
                 <span>Add new Project</span>
                 <form method="dialog">
                     <fieldset>
-                        <label>Name</label>
+                        <label for="add-project-name">Name</label>
                         <input
                             type="text"
                             id="add-project-name"
@@ -63,7 +65,7 @@
                 <span>Add new Live Server from a directory and a port</span>
                 <form method="dialog">
                     <fieldset>
-                        <label>Name</label>
+                        <label for="add-live-server-name">Name</label>
                         <input
                             type="text"
                             id="add-live-server-name"
@@ -86,7 +88,7 @@
                         />
                     </fieldset>
                     <fieldset>
-                        <label>Port</label>
+                        <label for="add-live-server-port">Port</label>
                         <input
                             type="number"
                             id="add-live-server-port"

@@ -282,3 +282,495 @@
         }
     }
 }
+
+@layer components {
+    ss-active-ports-process {
+        display: block;
+        border-bottom: 1px solid var(--border);
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 10px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-mid);
+        }
+
+        .section-count {
+            margin-left: auto;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .refresh-btn {
+            font-size: 11px;
+            color: var(--text-dim);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+
+            &:hover {
+                color: var(--text-mid);
+            }
+            &:disabled {
+                opacity: 0.3;
+                pointer-events: none;
+            }
+        }
+    }
+
+    ss-active-ports-process details > summary {
+        padding: 6px 10px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            background: var(--bg-hover);
+        }
+    }
+}
+
+@layer components {
+    ss-active-port {
+        display: block;
+        padding: 0 10px;
+
+        .active-port {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 22px;
+            cursor: default;
+
+            &:hover .kill-btn {
+                opacity: 1;
+            }
+        }
+
+        .port-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .port-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+            flex-shrink: 0;
+        }
+
+        .port-num {
+            font-size: var(--text-x-small);
+            color: var(--text);
+        }
+
+        .port-proc {
+            font-size: 10px;
+            color: var(--text-dim);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 90px;
+        }
+
+        .kill-btn {
+            font-size: 10px;
+            color: var(--text-dim);
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            line-height: 1;
+
+            &:hover {
+                color: var(--red);
+            }
+            &:disabled {
+                opacity: 0.2;
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+@layer components {
+    ss-live-server-process {
+        display: block;
+        border-bottom: 1px solid var(--border);
+    }
+
+    ss-live-server-process details > summary {
+        padding: 5px 10px 5px 20px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            background: var(--bg-hover);
+        }
+    }
+
+    ss-commands-process {
+        display: block;
+        border-bottom: 1px solid var(--border);
+    }
+
+    ss-commands-process details > summary {
+        padding: 5px 10px 5px 20px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            background: var(--bg-hover);
+        }
+    }
+
+    .sub-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        letter-spacing: 0.05em;
+        color: var(--text-dim);
+    }
+
+    .sub-count {
+        margin-left: auto;
+        font-size: 10px;
+    }
+
+    .active-count {
+        color: var(--green);
+    }
+}
+
+@layer components {
+    ss-live-server {
+        display: block;
+        padding: 0 10px 0 28px;
+    }
+
+    .server {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 24px;
+        cursor: pointer;
+
+        &:hover .server-actions {
+            opacity: 1;
+        }
+    }
+
+    .server-info {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        overflow: hidden;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .server-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        transition: background 0.2s;
+
+        &.running {
+            background: var(--green);
+        }
+        &.stopped {
+            background: var(--text-dim);
+        }
+    }
+
+    .server-name {
+        font-size: var(--text-x-small);
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .server-port {
+        font-size: 10px;
+        color: var(--text-dim);
+        flex-shrink: 0;
+    }
+
+    .server-url {
+        font-size: 10px;
+        color: var(--blue);
+        text-decoration: none;
+        flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 130px;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .error-msg {
+        font-size: 10px;
+        color: var(--red);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .server-actions {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        opacity: 0;
+        flex-shrink: 0;
+        transition: opacity 0.1s;
+    }
+
+    .act-btn {
+        font-size: 10px;
+        color: var(--text-mid);
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 3px;
+        line-height: 1;
+        border: none;
+        background: none;
+
+        &:hover {
+            color: var(--text);
+            background: var(--bg-hover);
+        }
+        &.stop:hover {
+            color: var(--red);
+        }
+        &.go:hover {
+            color: var(--green);
+        }
+    }
+
+    /* Settings popover */
+    #settings-popover,
+    [id^="server-pop-"] {
+        background: var(--bg-alt);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 4px 0;
+        min-width: 110px;
+        font-size: var(--text-x-small);
+        color: var(--text);
+
+        .edit,
+        .remove {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 10px;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--bg-hover);
+            }
+        }
+
+        .remove:hover {
+            color: var(--red);
+        }
+    }
+}
+
+@layer components {
+    ss-command {
+        display: block;
+        padding: 0 10px 0 28px;
+
+        .command {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 22px;
+            cursor: pointer;
+
+            &:hover .cmd-actions {
+                opacity: 1;
+            }
+        }
+
+        .cmd-info {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cmd-icon {
+            font-size: 9px;
+            flex-shrink: 0;
+            width: 10px;
+            text-align: center;
+
+            &.idle {
+                color: var(--text-dim);
+            }
+            &.running {
+                color: var(--green);
+            }
+        }
+
+        .cmd-name {
+            font-size: var(--text-x-small);
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cmd-preview {
+            font-size: 10px;
+            color: var(--text-dim);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 90px;
+        }
+
+        .cmd-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0;
+            flex-shrink: 0;
+            transition: opacity 0.1s;
+        }
+
+        .pkg-group + .pkg-group {
+            border-top: 1px solid var(--border);
+        }
+
+        .pkg-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px 2px 28px;
+            font-size: 10px;
+            color: var(--text-dim);
+            cursor: default;
+
+            &:hover .pkg-remove {
+                opacity: 1;
+            }
+        }
+
+        .pkg-folder {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pkg-remove {
+            opacity: 0;
+            transition: opacity 0.1s;
+            flex-shrink: 0;
+        }
+    }
+}
+
+@layer components {
+    ss-log-context {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+
+        .log-context {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .log-context-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 3px 10px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            flex-shrink: 0;
+        }
+
+        .log-context-title {
+            font-size: var(--text-x-small);
+            color: var(--text-mid);
+
+            span {
+                color: var(--green);
+            }
+        }
+
+        .log-clear {
+            font-size: 10px;
+            padding: 2px 8px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: none;
+            color: var(--text-dim);
+            cursor: pointer;
+
+            &:hover {
+                color: var(--text-mid);
+                border-color: var(--text-dim);
+            }
+        }
+
+        .log-context-panels[data-empty]::before {
+            content: "Click a server or script to view its output.";
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-dim);
+            font-size: var(--text-x-small);
+        }
+    }
+}
+
+/* ─── PTY terminal ───────────────────────────────────────────────────────── */
+@layer components {
+    ss-terminal {
+        display: block;
+        height: 100%;
+
+        .pty-viewport {
+            height: 100%;
+        }
+    }
+
+    .log-context-panels {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        ss-terminal {
+            flex: 1;
+        }
+        ss-terminal[hidden] {
+            display: none;
+        }
+    }
+}

@@ -6,6 +6,31 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as $models from "./models.js";
+
+/**
+ * @param {string} project_name
+ * @param {string} path
+ * @param {string} pm
+ * @returns {$CancellablePromise<void>}
+ */
+export function AddCommandPackage(project_name, path, pm) {
+    return $Call.ByID(430220054, project_name, path, pm);
+}
+
+/**
+ * @param {string} project_name
+ * @param {string} name
+ * @param {string} path
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function AddLiveServer(project_name, name, path, port) {
+    return $Call.ByID(24918728, project_name, name, path, port);
+}
+
 /**
  * @param {string} name
  * @returns {$CancellablePromise<void>}
@@ -22,9 +47,197 @@ export function AppReady() {
 }
 
 /**
+ * @param {string} dir
+ * @returns {$CancellablePromise<string>}
+ */
+export function DetectPackageManager(dir) {
+    return $Call.ByID(900268826, dir);
+}
+
+/**
+ * @param {string} id
+ * @returns {$CancellablePromise<string>}
+ */
+export function GetScriptLog(id) {
+    return $Call.ByID(2931966073, id);
+}
+
+/**
+ * @param {number} port
+ * @returns {$CancellablePromise<boolean>}
+ */
+export function IsPortListening(port) {
+    return $Call.ByID(4085931502, port);
+}
+
+/**
+ * @param {string} id
+ * @returns {$CancellablePromise<boolean>}
+ */
+export function IsScriptRunning(id) {
+    return $Call.ByID(55865196, id);
+}
+
+/**
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function KillPort(port) {
+    return $Call.ByID(1248471105, port);
+}
+
+/**
+ * @returns {$CancellablePromise<$models.PortInfo[]>}
+ */
+export function ListActivePorts() {
+    return $Call.ByID(2604013840).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType1($result);
+    }));
+}
+
+/**
+ * @param {string} id
+ * @param {number} cols
+ * @param {number} rows
+ * @returns {$CancellablePromise<void>}
+ */
+export function PTYResize(id, cols, rows) {
+    return $Call.ByID(3006575113, id, cols, rows);
+}
+
+/**
+ * @param {string} id
+ * @param {string} b64data
+ * @returns {$CancellablePromise<void>}
+ */
+export function PTYWrite(id, b64data) {
+    return $Call.ByID(1837664068, id, b64data);
+}
+
+/**
+ * @param {string} path
+ * @returns {$CancellablePromise<$models.ScriptInfo[]>}
+ */
+export function ParsePackageJSON(path) {
+    return $Call.ByID(843643833, path).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType3($result);
+    }));
+}
+
+/**
+ * @returns {$CancellablePromise<string>}
+ */
+export function PickFolder() {
+    return $Call.ByID(2881391671);
+}
+
+/**
+ * @param {number} port
+ * @returns {$CancellablePromise<string>}
+ */
+export function PortOwner(port) {
+    return $Call.ByID(1819760876, port);
+}
+
+/**
+ * @param {string} project_name
+ * @param {string} path
+ * @returns {$CancellablePromise<void>}
+ */
+export function RemoveCommandPackage(project_name, path) {
+    return $Call.ByID(504100893, project_name, path);
+}
+
+/**
  * @param {string} name
  * @returns {$CancellablePromise<void>}
  */
 export function RemoveProject(name) {
     return $Call.ByID(2906511607, name);
 }
+
+/**
+ * @param {string} project_name
+ * @param {string} path
+ * @param {string} script_name
+ * @returns {$CancellablePromise<void>}
+ */
+export function RemoveScript(project_name, path, script_name) {
+    return $Call.ByID(177754373, project_name, path, script_name);
+}
+
+/**
+ * @param {string} project_name
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function RemoveServer(project_name, port) {
+    return $Call.ByID(2811471457, project_name, port);
+}
+
+/**
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function RestartServer(port) {
+    return $Call.ByID(1318746098, port);
+}
+
+/**
+ * @param {string} id
+ * @param {string} dir
+ * @param {string} script_name
+ * @param {string} pm
+ * @param {number} cols
+ * @param {number} rows
+ * @returns {$CancellablePromise<void>}
+ */
+export function RunScript(id, dir, script_name, pm, cols, rows) {
+    return $Call.ByID(3085595652, id, dir, script_name, pm, cols, rows);
+}
+
+/**
+ * @param {string} path
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function StartServer(path, port) {
+    return $Call.ByID(3514541101, path, port);
+}
+
+/**
+ * @param {string} id
+ * @returns {$CancellablePromise<void>}
+ */
+export function StopScript(id) {
+    return $Call.ByID(3022376113, id);
+}
+
+/**
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function StopServer(port) {
+    return $Call.ByID(225283661, port);
+}
+
+/**
+ * @returns {$CancellablePromise<number>}
+ */
+export function SuggestPort() {
+    return $Call.ByID(1205534131);
+}
+
+/**
+ * @param {number} port
+ * @returns {$CancellablePromise<void>}
+ */
+export function TerminatePort(port) {
+    return $Call.ByID(2539175958, port);
+}
+
+// Private type creation functions
+const $$createType0 = $models.PortInfo.createFrom;
+const $$createType1 = $Create.Array($$createType0);
+const $$createType2 = $models.ScriptInfo.createFrom;
+const $$createType3 = $Create.Array($$createType2);
